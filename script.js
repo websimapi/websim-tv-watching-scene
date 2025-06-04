@@ -76,6 +76,7 @@ class TVWatchingScene {
     async generateCustomPeople() {
         const hasImage = this.imageUpload.files.length > 0;
         const hasText = this.textDescription.value.trim().length > 0;
+        const selectedSlot = document.getElementById('slot-selector').value;
 
         if (!hasImage && !hasText) {
             alert('Please either upload an image or provide a text description.');
@@ -84,6 +85,7 @@ class TVWatchingScene {
 
         this.closeModalHandler();
         const personElements = document.querySelectorAll('.person img');
+        const targetIndex = selectedSlot === 'all' ? null : parseInt(selectedSlot) - 1;
 
         try {
             let customDescription = '';
@@ -91,9 +93,10 @@ class TVWatchingScene {
             if (hasImage) {
                 // Convert image to data URL for LLM
                 const file = this.imageUpload.files[0];
-                const reader = new FileReader();
-                const imageDataUrl = await new Promise((resolve) => {
+                const imageDataUrl = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
                     reader.onload = (e) => resolve(e.target.result);
+                    reader.onerror = reject;
                     reader.readAsDataURL(file);
                 });
 
@@ -121,8 +124,10 @@ class TVWatchingScene {
                 customDescription = this.textDescription.value.trim();
             }
 
-            // Generate descriptions for each person using the custom input
-            for (let i = 0; i < personElements.length; i++) {
+            // Generate descriptions for selected person(s)
+            const indices = targetIndex !== null ? [targetIndex] : [0, 1, 2, 3];
+            
+            for (let i of indices) {
                 this.showLoading(personElements[i].parentElement);
 
                 try {
@@ -158,7 +163,7 @@ class TVWatchingScene {
                         personElements[i].style.transition = 'all 0.5s ease';
                         personElements[i].style.opacity = '1';
                         personElements[i].style.transform = 'translateY(0)';
-                    }, i * 200);
+                    }, indices.indexOf(i) * 200);
 
                 } catch (error) {
                     console.error(`Error generating custom person ${i + 1}:`, error);
