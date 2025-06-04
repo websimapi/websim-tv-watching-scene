@@ -108,7 +108,7 @@ class TVWatchingScene {
                             content: [
                                 {
                                     type: "text",
-                                    text: "Analyze this person's appearance in extreme detail. Focus on: hair color, length, style, and texture; body build and posture; clothing colors, patterns, materials, and fit; any visible accessories like glasses, jewelry, or bags; skin tone; age characteristics; and unique features. Describe what this person would look like from behind when sitting in a chair - how their hair falls, shoulder width, clothing drape, posture. Be very specific about colors, textures, and distinctive features that would be visible from the back view. This description will be used to recreate this exact person from behind."
+                                    text: "Analyze this image in extreme detail, focusing on every visual aspect that would be recreatable in a back-view portrait. Examine: HAIR - exact color (including highlights, lowlights, natural variations), length, texture (straight, wavy, curly, coarse, fine), style (ponytail, bun, loose, braided), how it falls and moves. CLOTHING - precise colors (use specific color names like burgundy, navy, sage green), patterns (stripes, polka dots, floral, geometric), fabric texture (cotton, denim, wool, silk, leather), fit (loose, tight, oversized, fitted), garment type and style details. BODY - build (slim, athletic, broad shoulders, etc.), posture, height indicators. ACCESSORIES - glasses style and color, jewelry (earrings, necklaces visible from back), bags, watches, hair accessories. SKIN TONE - exact shade and undertones. AGE INDICATORS - hair texture, posture, clothing style. STYLE AESTHETIC - is this casual, formal, vintage, modern, bohemian, minimalist? Pay attention to the overall visual style, lighting, and photographic quality of the image. Describe exactly what this person would look like from behind when sitting in a chair, including how all these elements would appear from that angle. Be extremely specific about colors using exact color names, textures you can see, and distinctive visual details that make this person unique."
                                 },
                                 {
                                     type: "image_url",
@@ -136,20 +136,22 @@ class TVWatchingScene {
                         messages: [
                             {
                                 role: "system",
-                                content: "You are an expert at creating detailed image prompts for back-view portraits. Your task is to take a detailed description of a person and create a prompt that shows them from behind sitting in a chair, preserving ALL their distinctive features that would be visible from the back. Focus heavily on recreating the exact hair, clothing, body type, and posture described. Always include 'viewed from behind', 'sitting in chair', 'realistic style', and 'transparent background'."
+                                content: "You are an expert at creating detailed image prompts for back-view portraits. Your task is to take a detailed description of a person and create a prompt that shows them from behind sitting in a chair, preserving ALL their distinctive features that would be visible from the back. Focus heavily on recreating the exact hair, clothing, body type, posture, colors, textures, and style aesthetic described. Always include 'viewed from behind', 'sitting in chair', 'realistic style', and 'transparent background'. Pay special attention to matching the exact visual style, lighting quality, and photographic characteristics of the original."
                             },
                             {
                                 role: "user",
-                                content: `Create a highly detailed image prompt showing this person from behind sitting in a chair. Preserve every detail possible from this description: ${customDescription}. 
+                                content: `Create a highly detailed image prompt showing this person from behind sitting in a chair. Preserve every visual detail possible from this description: ${customDescription}. 
 
 Make sure to include:
-- Exact hair details (color, length, style, texture)
-- Precise clothing description (colors, patterns, fit, materials)
-- Body build and posture
-- Any accessories visible from behind
+- Exact hair details (specific color names, length, style, texture, how it falls)
+- Precise clothing description (exact colors using specific color names, patterns, fit, materials, fabric texture)
+- Body build and posture exactly as described
+- Any accessories visible from behind (glasses, jewelry, bags, etc.)
+- The exact style aesthetic and visual quality of the original
+- Specific skin tone and age characteristics
 - The person must be viewed from behind, sitting in a chair
-- Realistic style with transparent background
-- Match the description as closely as possible`
+- Realistic style with transparent background, matching the photographic quality described
+- Recreate the exact visual style, colors, and details to look as much like the original person as possible from behind`
                             }
                         ]
                     });
