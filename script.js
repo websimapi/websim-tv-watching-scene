@@ -189,11 +189,11 @@ class TVWatchingScene {
         
         try {
             const tvStyles = [
-                'modern flat screen TV with black screen',
-                'vintage CRT television with dark screen',
-                'futuristic holographic display with transparent screen',
-                'retro 80s television set with black screen',
-                'sleek OLED smart TV with dark screen'
+                'modern flat screen TV with solid white screen display',
+                'vintage CRT television with solid white screen',
+                'futuristic holographic display with solid white screen',
+                'retro 80s television set with solid white screen display',
+                'sleek OLED smart TV with solid white screen'
             ];
             
             const randomStyle = tvStyles[Math.floor(Math.random() * tvStyles.length)];
