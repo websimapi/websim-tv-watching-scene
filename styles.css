@@ -95,17 +95,72 @@ body {
     gap: 30px;
 }
 
-.controls > button {
-    background: linear-gradient(45deg, #667eea, #764ba2);
+.tv-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.channel-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.channel-controls label {
+    font-weight: bold;
+    color: #555;
+}
+
+.channel-controls select {
+    padding: 8px 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+#tv-power {
+    background: linear-gradient(45deg, #28a745, #20c997);
     color: white;
     border: none;
-    padding: 15px 30px;
+    padding: 12px 24px;
     border-radius: 10px;
     font-size: 16px;
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+#tv-power.off {
+    background: linear-gradient(45deg, #dc3545, #c82333);
+}
+
+#tv-power:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.tv-screen-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 85%;
+    height: 75%;
+    object-fit: cover;
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.tv-screen-content.visible {
+    opacity: 1;
 }
 
 .character-controls {

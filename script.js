@@ -8,6 +8,13 @@ class TVWatchingScene {
         this.characterPrompt = document.getElementById('character-prompt');
         this.referenceImage = document.getElementById('reference-image');
         this.imagePreview = document.getElementById('image-preview');
+        this.tvPowerButton = document.getElementById('tv-power');
+        this.channelControls = document.getElementById('channel-controls');
+        this.channelSelect = document.getElementById('channel-select');
+        
+        this.tvOn = false;
+        this.channelInterval = null;
+        this.currentScreenContent = null;
         
         this.init();
     }
@@ -29,8 +36,140 @@ class TVWatchingScene {
         this.referenceImage.addEventListener('change', (e) => {
             this.handleImageUpload(e);
         });
+
+        this.tvPowerButton.addEventListener('click', () => {
+            this.toggleTV();
+        });
+
+        this.channelSelect.addEventListener('change', () => {
+            if (this.tvOn) {
+                this.generateChannelContent();
+            }
+        });
     }
 
+    toggleTV() {
+        this.tvOn = !this.tvOn;
+        
+        if (this.tvOn) {
+            this.tvPowerButton.textContent = 'Turn TV Off';
+            this.tvPowerButton.classList.add('off');
+            this.channelControls.style.display = 'flex';
+            this.startChannelGeneration();
+        } else {
+            this.tvPowerButton.textContent = 'Turn TV On';
+            this.tvPowerButton.classList.remove('off');
+            this.channelControls.style.display = 'none';
+            this.stopChannelGeneration();
+            this.clearScreenContent();
+        }
+    }
+
+    startChannelGeneration() {
+        this.generateChannelContent();
+        this.channelInterval = setInterval(() => {
+            this.generateChannelContent();
+        }, 30000);
+    }
+
+    stopChannelGeneration() {
+        if (this.channelInterval) {
+            clearInterval(this.channelInterval);
+            this.channelInterval = null;
+        }
+    }
+
+    async generateChannelContent() {
+        if (!this.tvOn) return;
+
+        const channel = this.channelSelect.value;
+        const channelPrompts = {
+            news: 'news anchor at desk, professional news studio background, breaking news graphics',
+            nature: 'wild animals in their natural habitat, documentary style, beautiful landscape',
+            cooking: 'chef cooking in modern kitchen, food preparation, cooking show setup',
+            sports: 'sports action scene, athletes competing, stadium background',
+            cartoon: 'colorful cartoon characters, animated style, fun cartoon scene',
+            movie: 'dramatic movie scene, cinematic lighting, action or drama scene',
+            music: 'music performance, concert stage, musicians performing'
+        };
+
+        try {
+            const prompt = channelPrompts[channel];
+            const result = await websim.imageGen({
+                prompt: `${prompt}, high quality, realistic, television broadcast style, 16:9 aspect ratio`,
+                aspect_ratio: "16:9"
+            });
+
+            this.displayScreenContent(result.url);
+        } catch (error) {
+            console.error('Error generating channel content:', error);
+        }
+    }
+
+    displayScreenContent(imageUrl) {
+        // Remove previous content
+        this.clearScreenContent();
+
+        // Create new content element
+        const contentElement = document.createElement('img');
+        contentElement.src = imageUrl;
+        contentElement.className = 'tv-screen-content';
+        
+        this.tvElement.appendChild(contentElement);
+        this.currentScreenContent = contentElement;
+
+        // Fade in
+        setTimeout(() => {
+            contentElement.classList.add('visible');
+        }, 100);
+    }
+
+    clearScreenContent() {
+        if (this.currentScreenContent) {
+            this.currentScreenContent.remove();
+            this.currentScreenContent = null;
+        }
+    }
+
+    async generateInitialTV() {
+        await this.regenerateTV();
+    }
+    
+    async regenerateTV() {
+        this.showLoading(this.tvElement);
+        
+        try {
+            const tvStyles = [
+                'modern flat screen TV with solid white screen display',
+                'vintage CRT television with solid white screen',
+                'futuristic holographic display with solid white screen',
+                'retro 80s television set with solid white screen display',
+                'sleek OLED smart TV with solid white screen'
+            ];
+            
+            const randomStyle = tvStyles[Math.floor(Math.random() * tvStyles.length)];
+            
+            const result = await websim.imageGen({
+                prompt: `${randomStyle}, front view, realistic, high quality, transparent background`,
+                transparent: true,
+                aspect_ratio: "4:3"
+            });
+            
+            this.tvImage.src = result.url;
+            
+            // Add some visual feedback
+            this.tvElement.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                this.tvElement.style.transform = 'scale(1)';
+            }, 300);
+            
+        } catch (error) {
+            console.error('Error generating TV:', error);
+        } finally {
+            this.hideLoading(this.tvElement);
+        }
+    }
+    
     handleImageUpload(event) {
         const file = event.target.files[0];
         if (file) {
@@ -179,46 +318,7 @@ class TVWatchingScene {
             this.hideLoading(personElement.parentElement);
         }
     }
-    
-    async generateInitialTV() {
-        await this.regenerateTV();
-    }
-    
-    async regenerateTV() {
-        this.showLoading(this.tvElement);
-        
-        try {
-            const tvStyles = [
-                'modern flat screen TV with solid white screen display',
-                'vintage CRT television with solid white screen',
-                'futuristic holographic display with solid white screen',
-                'retro 80s television set with solid white screen display',
-                'sleek OLED smart TV with solid white screen'
-            ];
-            
-            const randomStyle = tvStyles[Math.floor(Math.random() * tvStyles.length)];
-            
-            const result = await websim.imageGen({
-                prompt: `${randomStyle}, front view, realistic, high quality, transparent background`,
-                transparent: true,
-                aspect_ratio: "4:3"
-            });
-            
-            this.tvImage.src = result.url;
-            
-            // Add some visual feedback
-            this.tvElement.style.transform = 'scale(1.1)';
-            setTimeout(() => {
-                this.tvElement.style.transform = 'scale(1)';
-            }, 300);
-            
-        } catch (error) {
-            console.error('Error generating TV:', error);
-        } finally {
-            this.hideLoading(this.tvElement);
-        }
-    }
-    
+
     async regeneratePeople() {
         const personElements = document.querySelectorAll('.person img');
         
@@ -258,7 +358,7 @@ class TVWatchingScene {
             }
         }
     }
-    
+
     showLoading(element) {
         element.classList.add('loading');
     }
