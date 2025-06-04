@@ -15,7 +15,7 @@ class TVWatchingScene {
     }
     
     init() {
-        this.generateInitialAssets();
+        // Remove automatic generation - only generate when user requests
         this.setupEventListeners();
     }
     
@@ -90,7 +90,7 @@ class TVWatchingScene {
         try {
             let customDescription = '';
 
-            if (hasImage) {
+            if (hasImage && this.imageUpload.files[0]) {
                 // Convert image to data URL for LLM
                 const file = this.imageUpload.files[0];
                 const imageDataUrl = await new Promise((resolve, reject) => {
@@ -176,11 +176,6 @@ class TVWatchingScene {
             console.error('Error processing custom input:', error);
             alert('Error processing your input. Please try again.');
         }
-    }
-    
-    async generateInitialAssets() {
-        console.log('Generating initial TV watching scene...');
-        await this.regeneratePeople();
     }
     
     async regenerateTV() {
