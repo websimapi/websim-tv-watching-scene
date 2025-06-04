@@ -115,6 +115,15 @@ class TVWatchingScene {
         contentElement.src = imageUrl;
         contentElement.className = 'tv-screen-content';
         
+        // Wait for TV image to load, then detect white region and position content
+        if (this.tvImage.complete) {
+            this.positionContentInWhiteRegion(contentElement);
+        } else {
+            this.tvImage.onload = () => {
+                this.positionContentInWhiteRegion(contentElement);
+            };
+        }
+        
         this.tvElement.appendChild(contentElement);
         this.currentScreenContent = contentElement;
 
@@ -122,6 +131,86 @@ class TVWatchingScene {
         setTimeout(() => {
             contentElement.classList.add('visible');
         }, 100);
+    }
+
+    async positionContentInWhiteRegion(contentElement) {
+        try {
+            // Create a canvas to analyze the TV image
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            
+            img.onload = () => {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                
+                // Get image data to find white regions
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+                
+                let minX = canvas.width, minY = canvas.height;
+                let maxX = 0, maxY = 0;
+                
+                // Find the bounds of white/light gray regions (screen area)
+                for (let y = 0; y < canvas.height; y++) {
+                    for (let x = 0; x < canvas.width; x++) {
+                        const i = (y * canvas.width + x) * 4;
+                        const r = data[i];
+                        const g = data[i + 1];
+                        const b = data[i + 2];
+                        const a = data[i + 3];
+                        
+                        // Check if pixel is white/light (screen area)
+                        if (a > 200 && r > 200 && g > 200 && b > 200) {
+                            minX = Math.min(minX, x);
+                            minY = Math.min(minY, y);
+                            maxX = Math.max(maxX, x);
+                            maxY = Math.max(maxY, y);
+                        }
+                    }
+                }
+                
+                // Calculate screen region as percentage of TV image
+                if (maxX > minX && maxY > minY) {
+                    const screenWidth = ((maxX - minX) / canvas.width) * 100;
+                    const screenHeight = ((maxY - minY) / canvas.height) * 100;
+                    const screenLeft = (minX / canvas.width) * 100;
+                    const screenTop = (minY / canvas.height) * 100;
+                    
+                    // Apply positioning to content element
+                    contentElement.style.position = 'absolute';
+                    contentElement.style.width = `${screenWidth}%`;
+                    contentElement.style.height = `${screenHeight}%`;
+                    contentElement.style.left = `${screenLeft}%`;
+                    contentElement.style.top = `${screenTop}%`;
+                    contentElement.style.objectFit = 'cover';
+                    contentElement.style.borderRadius = '4px';
+                } else {
+                    // Fallback positioning if white region not detected
+                    contentElement.style.position = 'absolute';
+                    contentElement.style.width = '75%';
+                    contentElement.style.height = '65%';
+                    contentElement.style.left = '12.5%';
+                    contentElement.style.top = '15%';
+                    contentElement.style.objectFit = 'cover';
+                    contentElement.style.borderRadius = '4px';
+                }
+            };
+            
+            img.src = this.tvImage.src;
+        } catch (error) {
+            console.error('Error positioning content:', error);
+            // Fallback positioning
+            contentElement.style.position = 'absolute';
+            contentElement.style.width = '75%';
+            contentElement.style.height = '65%';
+            contentElement.style.left = '12.5%';
+            contentElement.style.top = '15%';
+            contentElement.style.objectFit = 'cover';
+            contentElement.style.borderRadius = '4px';
+        }
     }
 
     clearScreenContent() {
