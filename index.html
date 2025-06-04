@@ -36,6 +36,25 @@
         <div class="controls">
             <button id="regenerate-tv">Generate New TV</button>
             <button id="regenerate-people">Generate New People</button>
+            <button id="regenerate-custom-people">Custom People</button>
+        </div>
+    </div>
+    
+    <!-- Custom People Modal -->
+    <div id="custom-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Customize People</h2>
+            <div class="input-section">
+                <h3>Option 1: Upload Image</h3>
+                <input type="file" id="image-upload" accept="image/*">
+                <div id="image-preview"></div>
+            </div>
+            <div class="input-section">
+                <h3>Option 2: Text Description</h3>
+                <textarea id="text-description" placeholder="Describe the person you want (e.g., 'elderly man with gray hair wearing a red sweater')"></textarea>
+            </div>
+            <button id="generate-custom">Generate</button>
         </div>
     </div>
     
@@ -43,4 +62,3 @@
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4c6229722a6346bc8eb5cb0e5eae5d41","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
-
