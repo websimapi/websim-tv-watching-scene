@@ -100,7 +100,7 @@ class TVWatchingScene {
                     reader.readAsDataURL(file);
                 });
 
-                // Use LLM to describe the image
+                // Use LLM to create detailed description focusing on back-view characteristics
                 const completion = await websim.chat.completions.create({
                     messages: [
                         {
@@ -108,7 +108,7 @@ class TVWatchingScene {
                             content: [
                                 {
                                     type: "text",
-                                    text: "Describe this person's appearance, clothing, and general characteristics. Focus on details that would help recreate them as a person sitting in a chair viewed from behind. Be concise but descriptive."
+                                    text: "Analyze this person's appearance in extreme detail. Focus on: hair color, length, style, and texture; body build and posture; clothing colors, patterns, materials, and fit; any visible accessories like glasses, jewelry, or bags; skin tone; age characteristics; and unique features. Describe what this person would look like from behind when sitting in a chair - how their hair falls, shoulder width, clothing drape, posture. Be very specific about colors, textures, and distinctive features that would be visible from the back view. This description will be used to recreate this exact person from behind."
                                 },
                                 {
                                     type: "image_url",
@@ -131,16 +131,25 @@ class TVWatchingScene {
                 this.showLoading(personElements[i].parentElement);
 
                 try {
-                    // Use LLM to create a proper prompt that maintains "back view sitting in chair"
+                    // Use LLM to create a detailed back-view prompt that maintains the person's characteristics
                     const promptCompletion = await websim.chat.completions.create({
                         messages: [
                             {
                                 role: "system",
-                                content: "You are a prompt generator for creating images of people sitting in chairs viewed from behind. Take the user's description and create a detailed prompt that shows the person from behind, sitting in a chair. Always include 'viewed from behind', 'sitting in chair', 'realistic style', and 'transparent background' in your response."
+                                content: "You are an expert at creating detailed image prompts for back-view portraits. Your task is to take a detailed description of a person and create a prompt that shows them from behind sitting in a chair, preserving ALL their distinctive features that would be visible from the back. Focus heavily on recreating the exact hair, clothing, body type, and posture described. Always include 'viewed from behind', 'sitting in chair', 'realistic style', and 'transparent background'."
                             },
                             {
                                 role: "user",
-                                content: `Create an image prompt for: ${customDescription}. Make sure the person is viewed from behind sitting in a chair.`
+                                content: `Create a highly detailed image prompt showing this person from behind sitting in a chair. Preserve every detail possible from this description: ${customDescription}. 
+
+Make sure to include:
+- Exact hair details (color, length, style, texture)
+- Precise clothing description (colors, patterns, fit, materials)
+- Body build and posture
+- Any accessories visible from behind
+- The person must be viewed from behind, sitting in a chair
+- Realistic style with transparent background
+- Match the description as closely as possible`
                             }
                         ]
                     });
