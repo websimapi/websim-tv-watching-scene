@@ -35,36 +35,30 @@
         
         <div class="controls">
             <button id="regenerate-tv">Generate New TV</button>
-            <button id="regenerate-people">Generate New People</button>
-            <button id="regenerate-custom-people">Custom People</button>
-        </div>
-    </div>
-    
-    <!-- Custom People Modal -->
-    <div id="custom-modal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Customize People</h2>
-            <div class="input-section">
-                <h3>Select Position</h3>
-                <select id="slot-selector">
-                    <option value="all">All positions</option>
-                    <option value="1">Position 1 (left)</option>
-                    <option value="2">Position 2</option>
-                    <option value="3">Position 3</option>
-                    <option value="4">Position 4 (right)</option>
-                </select>
+            <div class="character-controls">
+                <h3>Generate Character for Chair Position:</h3>
+                <div class="position-selector">
+                    <label>Select Position:</label>
+                    <select id="position-select">
+                        <option value="0">Chair 1</option>
+                        <option value="1">Chair 2</option>
+                        <option value="2">Chair 3</option>
+                        <option value="3">Chair 4</option>
+                    </select>
+                </div>
+                <div class="input-options">
+                    <div class="text-input-section">
+                        <label for="character-prompt">Describe what should be sitting in the chair:</label>
+                        <textarea id="character-prompt" placeholder="e.g., a cat, a robot, a person in business attire, etc."></textarea>
+                    </div>
+                    <div class="image-input-section">
+                        <label for="reference-image">Or upload a reference image:</label>
+                        <input type="file" id="reference-image" accept="image/*">
+                        <canvas id="image-preview" style="display: none;"></canvas>
+                    </div>
+                </div>
+                <button id="generate-character">Generate Character</button>
             </div>
-            <div class="input-section">
-                <h3>Option 1: Upload Image</h3>
-                <input type="file" id="image-upload" accept="image/*">
-                <div id="image-preview"></div>
-            </div>
-            <div class="input-section">
-                <h3>Option 2: Text Description</h3>
-                <textarea id="text-description" placeholder="Describe the person you want (e.g., 'elderly man with gray hair wearing a red sweater')"></textarea>
-            </div>
-            <button id="generate-custom">Generate</button>
         </div>
     </div>
     

@@ -2,20 +2,16 @@ class TVWatchingScene {
     constructor() {
         this.tvElement = document.getElementById('tv');
         this.regenerateTVButton = document.getElementById('regenerate-tv');
-        this.regeneratePeopleButton = document.getElementById('regenerate-people');
-        this.regenerateCustomPeopleButton = document.getElementById('regenerate-custom-people');
-        this.modal = document.getElementById('custom-modal');
-        this.closeModal = document.querySelector('.close');
-        this.imageUpload = document.getElementById('image-upload');
+        this.generateCharacterButton = document.getElementById('generate-character');
+        this.positionSelect = document.getElementById('position-select');
+        this.characterPrompt = document.getElementById('character-prompt');
+        this.referenceImage = document.getElementById('reference-image');
         this.imagePreview = document.getElementById('image-preview');
-        this.textDescription = document.getElementById('text-description');
-        this.generateCustomButton = document.getElementById('generate-custom');
         
         this.init();
     }
     
     init() {
-        // Remove automatic generation - only generate when user requests
         this.setupEventListeners();
     }
     
@@ -24,42 +20,13 @@ class TVWatchingScene {
             this.regenerateTV();
         });
         
-        this.regeneratePeopleButton.addEventListener('click', () => {
-            this.regeneratePeople();
+        this.generateCharacterButton.addEventListener('click', () => {
+            this.generateCharacter();
         });
 
-        this.regenerateCustomPeopleButton.addEventListener('click', () => {
-            this.openModal();
+        this.referenceImage.addEventListener('change', (e) => {
+            this.handleImageUpload(e);
         });
-
-        this.closeModal.addEventListener('click', () => {
-            this.closeModalHandler();
-        });
-
-        window.addEventListener('click', (event) => {
-            if (event.target === this.modal) {
-                this.closeModalHandler();
-            }
-        });
-
-        this.imageUpload.addEventListener('change', (event) => {
-            this.handleImageUpload(event);
-        });
-
-        this.generateCustomButton.addEventListener('click', () => {
-            this.generateCustomPeople();
-        });
-    }
-
-    openModal() {
-        this.modal.style.display = 'block';
-    }
-
-    closeModalHandler() {
-        this.modal.style.display = 'none';
-        this.imagePreview.innerHTML = '';
-        this.textDescription.value = '';
-        this.imageUpload.value = '';
     }
 
     handleImageUpload(event) {
@@ -67,48 +34,69 @@ class TVWatchingScene {
         if (file) {
             const reader = new FileReader();
             reader.onload = (e) => {
-                this.imagePreview.innerHTML = `<img src="${e.target.result}" alt="Uploaded image">`;
+                const canvas = this.imagePreview;
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                
+                img.onload = () => {
+                    // Resize image for preview
+                    const maxSize = 200;
+                    let { width, height } = img;
+                    
+                    if (width > height) {
+                        if (width > maxSize) {
+                            height = (height * maxSize) / width;
+                            width = maxSize;
+                        }
+                    } else {
+                        if (height > maxSize) {
+                            width = (width * maxSize) / height;
+                            height = maxSize;
+                        }
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    canvas.style.display = 'block';
+                    
+                    ctx.drawImage(img, 0, 0, width, height);
+                };
+                
+                img.src = e.target.result;
             };
             reader.readAsDataURL(file);
         }
     }
 
-    async generateCustomPeople() {
-        const hasImage = this.imageUpload.files.length > 0;
-        const hasText = this.textDescription.value.trim().length > 0;
-        const selectedSlot = document.getElementById('slot-selector').value;
-
-        if (!hasImage && !hasText) {
-            alert('Please either upload an image or provide a text description.');
+    async generateCharacter() {
+        const selectedPosition = parseInt(this.positionSelect.value);
+        const textPrompt = this.characterPrompt.value.trim();
+        const hasImage = this.referenceImage.files.length > 0;
+        
+        if (!textPrompt && !hasImage) {
+            alert('Please provide either a text description or upload a reference image.');
             return;
         }
 
-        this.closeModalHandler();
-        const personElements = document.querySelectorAll('.person img');
-        const targetIndex = selectedSlot === 'all' ? null : parseInt(selectedSlot) - 1;
-
+        const personElement = document.querySelectorAll('.person img')[selectedPosition];
+        this.showLoading(personElement.parentElement);
+        
         try {
-            let customDescription = '';
-
-            if (hasImage && this.imageUpload.files[0]) {
-                // Convert image to data URL for LLM
-                const file = this.imageUpload.files[0];
-                const imageDataUrl = await new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = (e) => resolve(e.target.result);
-                    reader.onerror = reject;
-                    reader.readAsDataURL(file);
-                });
-
-                // Use LLM to create detailed description focusing on back-view characteristics
-                const completion = await websim.chat.completions.create({
+            let finalPrompt = '';
+            
+            if (hasImage && textPrompt) {
+                // Both image and text provided
+                const canvas = this.imagePreview;
+                const imageDataUrl = canvas.toDataURL();
+                
+                const description = await websim.chat.completions.create({
                     messages: [
                         {
                             role: "user",
                             content: [
                                 {
                                     type: "text",
-                                    text: "Analyze this image in extreme detail, focusing on every visual aspect that would be recreatable in a back-view portrait. Examine: HAIR - exact color (including highlights, lowlights, natural variations), length, texture (straight, wavy, curly, coarse, fine), style (ponytail, bun, loose, braided), how it falls and moves. CLOTHING - precise colors (use specific color names like burgundy, navy, sage green), patterns (stripes, polka dots, floral, geometric), fabric texture (cotton, denim, wool, silk, leather), fit (loose, tight, oversized, fitted), garment type and style details. BODY - build (slim, athletic, broad shoulders, etc.), posture, height indicators. ACCESSORIES - glasses style and color, jewelry (earrings, necklaces visible from back), bags, watches, hair accessories. SKIN TONE - exact shade and undertones. AGE INDICATORS - hair texture, posture, clothing style. STYLE AESTHETIC - is this casual, formal, vintage, modern, bohemian, minimalist? Pay attention to the overall visual style, lighting, and photographic quality of the image. Describe exactly what this person would look like from behind when sitting in a chair, including how all these elements would appear from that angle. Be extremely specific about colors using exact color names, textures you can see, and distinctive visual details that make this person unique."
+                                    text: `Look at this image and the user's description: "${textPrompt}". Create a detailed prompt for generating this subject sitting in a chair viewed from behind. The final prompt must include "viewed from behind" and "sitting in a chair". Focus on the subject's appearance and clothing.`
                                 },
                                 {
                                     type: "image_url",
@@ -118,75 +106,81 @@ class TVWatchingScene {
                         }
                     ]
                 });
-
-                customDescription = completion.content;
+                
+                finalPrompt = description.content;
+            } else if (hasImage) {
+                // Only image provided
+                const canvas = this.imagePreview;
+                const imageDataUrl = canvas.toDataURL();
+                
+                const description = await websim.chat.completions.create({
+                    messages: [
+                        {
+                            role: "user",
+                            content: [
+                                {
+                                    type: "text",
+                                    text: "Describe what you see in this image and create a prompt for generating this subject sitting in a chair viewed from behind. The final prompt must include 'viewed from behind' and 'sitting in a chair'."
+                                },
+                                {
+                                    type: "image_url",
+                                    image_url: { url: imageDataUrl }
+                                }
+                            ]
+                        }
+                    ]
+                });
+                
+                finalPrompt = description.content;
             } else {
-                customDescription = this.textDescription.value.trim();
+                // Only text provided
+                const enhancedPrompt = await websim.chat.completions.create({
+                    messages: [
+                        {
+                            role: "user",
+                            content: `Take this description: "${textPrompt}" and create a detailed prompt for generating this subject sitting in a chair viewed from behind. The final prompt must include "viewed from behind" and "sitting in a chair". Be descriptive about appearance and clothing.`
+                        }
+                    ]
+                });
+                
+                finalPrompt = enhancedPrompt.content;
             }
-
-            // Generate descriptions for selected person(s)
-            const indices = targetIndex !== null ? [targetIndex] : [0, 1, 2, 3];
             
-            for (let i of indices) {
-                this.showLoading(personElements[i].parentElement);
-
-                try {
-                    // Use LLM to create a detailed back-view prompt that maintains the person's characteristics
-                    const promptCompletion = await websim.chat.completions.create({
-                        messages: [
-                            {
-                                role: "system",
-                                content: "You are an expert at creating detailed image prompts for back-view portraits. Your task is to take a detailed description of a person and create a prompt that shows them from behind sitting in a chair, preserving ALL their distinctive features that would be visible from the back. Focus heavily on recreating the exact hair, clothing, body type, posture, colors, textures, and style aesthetic described. Always include 'viewed from behind', 'sitting in chair', 'realistic style', and 'transparent background'. Pay special attention to matching the exact visual style, lighting quality, and photographic characteristics of the original."
-                            },
-                            {
-                                role: "user",
-                                content: `Create a highly detailed image prompt showing this person from behind sitting in a chair. Preserve every visual detail possible from this description: ${customDescription}. 
-
-Make sure to include:
-- Exact hair details (specific color names, length, style, texture, how it falls)
-- Precise clothing description (exact colors using specific color names, patterns, fit, materials, fabric texture)
-- Body build and posture exactly as described
-- Any accessories visible from behind (glasses, jewelry, bags, etc.)
-- The exact style aesthetic and visual quality of the original
-- Specific skin tone and age characteristics
-- The person must be viewed from behind, sitting in a chair
-- Realistic style with transparent background, matching the photographic quality described
-- Recreate the exact visual style, colors, and details to look as much like the original person as possible from behind`
-                            }
-                        ]
-                    });
-
-                    const finalPrompt = promptCompletion.content;
-
-                    const result = await websim.imageGen({
-                        prompt: finalPrompt,
-                        transparent: true,
-                        aspect_ratio: "2:3"
-                    });
-
-                    personElements[i].src = result.url;
-
-                    // Add entrance animation
-                    personElements[i].style.opacity = '0';
-                    personElements[i].style.transform = 'translateY(20px)';
-
-                    setTimeout(() => {
-                        personElements[i].style.transition = 'all 0.5s ease';
-                        personElements[i].style.opacity = '1';
-                        personElements[i].style.transform = 'translateY(0)';
-                    }, indices.indexOf(i) * 200);
-
-                } catch (error) {
-                    console.error(`Error generating custom person ${i + 1}:`, error);
-                } finally {
-                    this.hideLoading(personElements[i].parentElement);
-                }
-            }
-
+            // Generate the image
+            const result = await websim.imageGen({
+                prompt: `${finalPrompt}, realistic style, transparent background, sitting pose`,
+                transparent: true,
+                aspect_ratio: "2:3"
+            });
+            
+            personElement.src = result.url;
+            
+            // Add entrance animation
+            personElement.style.opacity = '0';
+            personElement.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                personElement.style.transition = 'all 0.5s ease';
+                personElement.style.opacity = '1';
+                personElement.style.transform = 'translateY(0)';
+            }, 100);
+            
+            // Clear inputs after successful generation
+            this.characterPrompt.value = '';
+            this.referenceImage.value = '';
+            this.imagePreview.style.display = 'none';
+            
         } catch (error) {
-            console.error('Error processing custom input:', error);
-            alert('Error processing your input. Please try again.');
+            console.error('Error generating character:', error);
+            alert('Error generating character. Please try again.');
+        } finally {
+            this.hideLoading(personElement.parentElement);
         }
+    }
+    
+    async generateInitialAssets() {
+        // Remove automatic generation
+        console.log('TV watching scene ready for user input...');
     }
     
     async regenerateTV() {

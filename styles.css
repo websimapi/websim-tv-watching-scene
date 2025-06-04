@@ -116,11 +116,12 @@ body {
 .controls {
     margin-top: 30px;
     display: flex;
-    justify-content: center;
-    gap: 20px;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
 }
 
-.controls button {
+.controls > button {
     background: linear-gradient(45deg, #667eea, #764ba2);
     color: white;
     border: none;
@@ -133,12 +134,100 @@ body {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
-.controls button:hover {
+.character-controls {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 25px;
+    border-radius: 15px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.character-controls h3 {
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+}
+
+.position-selector {
+    margin-bottom: 20px;
+}
+
+.position-selector label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+.position-selector select {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+.input-options {
+    margin-bottom: 20px;
+}
+
+.text-input-section, .image-input-section {
+    margin-bottom: 15px;
+}
+
+.text-input-section label, .image-input-section label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+.text-input-section textarea {
+    width: 100%;
+    height: 80px;
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    resize: vertical;
+}
+
+.image-input-section input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+}
+
+#image-preview {
+    margin-top: 10px;
+    max-width: 200px;
+    max-height: 200px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+}
+
+#generate-character {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    width: 100%;
+}
+
+.controls button:hover, #generate-character:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
-.controls button:active {
+.controls button:active, #generate-character:active {
     transform: translateY(0);
 }
 
@@ -167,102 +256,6 @@ body {
     100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-}
-
-.modal-content {
-    background-color: #fefefe;
-    margin: 5% auto;
-    padding: 30px;
-    border-radius: 15px;
-    width: 80%;
-    max-width: 600px;
-    position: relative;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-}
-
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.close:hover {
-    color: #000;
-}
-
-.input-section {
-    margin: 20px 0;
-    padding: 20px;
-    border: 2px dashed #ddd;
-    border-radius: 10px;
-}
-
-.input-section h3 {
-    margin-bottom: 15px;
-    color: #333;
-}
-
-#image-upload {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-#image-preview {
-    margin-top: 15px;
-    text-align: center;
-}
-
-#image-preview img {
-    max-width: 200px;
-    max-height: 200px;
-    border-radius: 10px;
-}
-
-#text-description {
-    width: 100%;
-    height: 100px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    resize: vertical;
-    font-family: Arial, sans-serif;
-}
-
-#slot-selector {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
-    background-color: white;
-}
-
-#generate-custom {
-    background: linear-gradient(45deg, #667eea, #764ba2);
-    color: white;
-    border: none;
-    padding: 15px 30px;
-    border-radius: 10px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 20px;
-}
-
 @media (max-width: 768px) {
     .seating-area {
         grid-template-columns: repeat(2, 1fr);
@@ -274,12 +267,11 @@ body {
         height: 210px;
     }
     
-    .controls {
-        flex-direction: column;
-        align-items: center;
+    .character-controls {
+        padding: 20px;
     }
     
-    .controls button {
-        width: 250px;
+    .controls > button, #generate-character {
+        width: 100%;
     }
 }
