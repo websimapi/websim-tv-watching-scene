@@ -1,6 +1,7 @@
 class TVWatchingScene {
     constructor() {
         this.tvElement = document.getElementById('tv');
+        this.tvImage = document.getElementById('tv-image');
         this.regenerateTVButton = document.getElementById('regenerate-tv');
         this.generateCharacterButton = document.getElementById('generate-character');
         this.positionSelect = document.getElementById('position-select');
@@ -13,6 +14,7 @@ class TVWatchingScene {
     
     init() {
         this.setupEventListeners();
+        this.generateInitialTV();
     }
     
     setupEventListeners() {
@@ -178,9 +180,8 @@ class TVWatchingScene {
         }
     }
     
-    async generateInitialAssets() {
-        // Remove automatic generation
-        console.log('TV watching scene ready for user input...');
+    async generateInitialTV() {
+        await this.regenerateTV();
     }
     
     async regenerateTV() {
@@ -188,31 +189,22 @@ class TVWatchingScene {
         
         try {
             const tvStyles = [
-                'modern flat screen TV',
-                'vintage CRT television',
-                'futuristic holographic display',
-                'retro 80s television set',
-                'sleek OLED smart TV'
+                'modern flat screen TV with black screen',
+                'vintage CRT television with dark screen',
+                'futuristic holographic display with transparent screen',
+                'retro 80s television set with black screen',
+                'sleek OLED smart TV with dark screen'
             ];
             
             const randomStyle = tvStyles[Math.floor(Math.random() * tvStyles.length)];
             
             const result = await websim.imageGen({
-                prompt: `${randomStyle} with a bright white glowing screen, front view, realistic, high quality, isolated on transparent background`,
+                prompt: `${randomStyle}, front view, realistic, high quality, transparent background`,
                 transparent: true,
                 aspect_ratio: "4:3"
             });
             
-            // Create new TV image and replace the current TV
-            const newTV = document.createElement('img');
-            newTV.src = result.url;
-            newTV.style.width = '100%';
-            newTV.style.height = '100%';
-            newTV.style.objectFit = 'contain';
-            
-            // Clear current TV content and add new image
-            this.tvElement.innerHTML = '';
-            this.tvElement.appendChild(newTV);
+            this.tvImage.src = result.url;
             
             // Add some visual feedback
             this.tvElement.style.transform = 'scale(1.1)';
